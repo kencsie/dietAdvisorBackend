@@ -38,3 +38,8 @@ out/
 
 ### DataFiles ###
 data/uploads/*
+calorie_estimation/data/depth_maps
+calorie_estimation/static/*
+*.pt
+*.pth
+*.pkl

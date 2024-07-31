@@ -1,0 +1,41 @@
+User information:
+- Age: {age}
+- Weight: {weight} kg
+- Height: {height} cm
+- Physical activity level: {physical_activity_multiplier}
+- Daily calorie intake so far (including lunch): {user_intake_calorie} kcal
+- Daily protein intake so far: {user_intake_protein} g
+- Daily fat intake so far: {user_intake_fat} g
+- Daily carbohydrate intake so far: {user_intake_carb} g
+- Weight goal: {weight_option} by {weight_option_amount} calories
+- Total Daily Energy Expenditure (TDEE): {TDEE} calories
+
+Considering the intake so far is for lunch, suggest a balanced meal plan for dinner that aligns with the user's dietary needs and weight goal. The dinner plan should help the user meet their remaining daily nutritional requirements without exceeding the TDEE, considering the goal to {weight_option} weight by adjusting daily calorie intake by {weight_option_amount} calories.
+
+Foods available for dinner:
+1. Kabayaki sea bream fillet
+2. Spam
+3. Apple -sliced-
+4. Cabbage
+5. Coin
+6. Creamy tofu
+7. Creamy tofu -without sauce-
+8. Cucumber
+9. Egg tofu
+10. Firm tofu
+11. Fish cake
+12. Fried chicken cutlet
+13. Fried potato
+14. Grilled pork
+15. Guava -sliced-
+16. Mustard greens
+17. Pig blood curd
+18. Pig liver
+19. Pineapple
+20. Pumpkin
+21. Red grilled pork
+22. Soy egg
+23. Sweet potato leaves
+24. Rice
+
+The meal plan should consider not only the caloric content but also the balance of macronutrients (proteins, fats, carbohydrates) to ensure the user's nutritional needs are met by the end of the day. Please provide suggestions for dinner that contribute to the user's health and weight management goals.
