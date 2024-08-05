@@ -11,6 +11,8 @@ from urllib.parse import quote, unquote
 from PIL import Image
 import torchvision.transforms as transforms
 from segment_anything import sam_model_registry, SamPredictor
+import time
+import concurrent.futures
 
 # # Global model loading
 # yolo_model = torch.hub.load('ultralytics/yolov5', 'custom', path='./website/data/models/yolo.pt')
@@ -28,7 +30,7 @@ def upload_file():
             img.save(image_path)
 
     def yolo_object_detection(image_path, output_path):
-        yolo_model = torch.hub.load('ultralytics/yolov5', 'custom', path='./data/models/yolo.pt')
+        yolo_model = torch.hub.load('ultralytics/yolov5', 'custom', path=f'{os.getcwd()}/data/models/yolo.pt')
         yolo_model.eval()
         results = yolo_model(image_path)
         detected_objects = []
@@ -55,7 +57,7 @@ def upload_file():
         return detected_objects
 
     def perform_segmentation(image_path, bounding_boxes, real_coin_area):
-        CHECKPOINT_PATH = "./data/models/sam_vit_h_4b8939.pth"
+        CHECKPOINT_PATH = f"/config/workspace/dietAdvisorBackend/calorie_estimation/data/models/sam_vit_h_4b8939.pth"
         MODEL_TYPE = "vit_h"
         DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         sam_model = sam_model_registry[MODEL_TYPE](checkpoint=CHECKPOINT_PATH).to(device=DEVICE)
@@ -167,36 +169,32 @@ def upload_file():
 
         return results
 
+    def detection_and_segmentation(file_path, output_folder):
+        detected_objects = yolo_object_detection(file_path, output_folder)
+        coin_real = 13**2 * np.pi
+        return perform_segmentation(file_path, detected_objects, real_coin_area=coin_real)
+
+
     # Define the path to save processed images
     output_folder = os.path.join(os.getcwd(), 'static', 'results')
     os.makedirs(output_folder, exist_ok=True)
-
-    '''# Collect file object
-    file = request.files['file']
-
-    # Sanitize file name
-    filename = secure_filename(file.filename)
-
-    # Store file object
-    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-    file.save(file_path)'''
 
     file_path = os.path.join(os.getcwd(), 'static', 'IMG_9265.jpeg')
 
     # Resize and save image
     resize_and_save_image(file_path)
 
-    # Yolo object detection
-    detected_objects = yolo_object_detection(file_path, output_folder)
+    # Execute both tasks concurrently
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        # Schedule the tasks
+        future_segmentation = executor.submit(detection_and_segmentation, file_path, output_folder)
+        future_depth = executor.submit(estimate_depth, file_path)
 
-    # Segmentation
-    coin_real = 13**2 * np.pi
-    segmentation_details = perform_segmentation(file_path, detected_objects, real_coin_area=coin_real)
+        # Retrieve results when both are ready
+        segmentation_details = future_segmentation.result()
+        depth_map_path = future_depth.result()
 
-    # Esimate Depth
-    depth_map_path = estimate_depth(file_path)
-
-    # Calculate volume and mass
+    # Calculate volume and mass after both tasks have finished
     results = calculate_volume_and_mass(segmentation_details, depth_map_path)
 
     #os.remove(file_path)
@@ -209,7 +207,9 @@ def upload_file():
     print(serialized_classes)
     results_image_path = os.path.join(output_folder,  os.path.splitext(os.path.basename(file_path))[0] + '.jpg')
     
-
     #return redirect(url_for('views.results', detected_classes=encoded_classes, image_name=os.path.basename(results_image_path)))
 
+start_time = time.time()  # Start time
 upload_file()
+end_time = time.time()  # End time
+print(f"Execution time: {end_time - start_time} seconds")

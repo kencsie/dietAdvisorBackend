@@ -11,6 +11,7 @@ from urllib.parse import quote, unquote
 from PIL import Image
 import torchvision.transforms as transforms
 from segment_anything import sam_model_registry, SamPredictor
+import time
 
 # # Global model loading
 # yolo_model = torch.hub.load('ultralytics/yolov5', 'custom', path='./website/data/models/yolo.pt')
@@ -212,4 +213,7 @@ def upload_file():
 
     #return redirect(url_for('views.results', detected_classes=encoded_classes, image_name=os.path.basename(results_image_path)))
 
+start_time = time.time()  # Start time
 upload_file()
+end_time = time.time()  # End time
+print(f"Execution time: {end_time - start_time} seconds")
