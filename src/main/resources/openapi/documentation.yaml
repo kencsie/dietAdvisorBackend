@@ -1,23 +1,154 @@
 openapi: "3.0.3"
 info:
-  title: "Application API"
-  description: "Application API"
-  version: "1.0.0"
+  title: "dietAdvisorBackend API"
+  version: "0.0.1"
 servers:
-  - url: "http://0.0.0.0:8080"
+  - url: "http://100.108.170.70:8080"
 paths:
-  /:
+ /user/{userName}:
     get:
-      description: "Hello World!"
+      summary: Read user information
+      description: Retrieve a user's information by userName
+      operationId: getUserByName
+      tags:
+        - User
+      parameters:
+        - in: path
+          name: userName
+          required: true
+          schema:
+            type: string
+          description: The user's name
       responses:
-        "200":
-          description: "OK"
+        '200':
+          description: Successfully retrieved user information
           content:
-            text/plain:
+            application/json:
               schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Hello World!"
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+    put:
+      summary: Update an existing user
+      operationId: updateUser
+      tags:
+        - User
+      parameters:
+        - in: path
+          name: userName
+          required: true
+          schema:
+            type: string
+          description: Unique username of the user
+      requestBody:
+        description: Updated user data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User updated successfully
+        '404':
+          description: User not found
+    delete:
+      summary: Delete a user
+      operationId: deleteUser
+      tags:
+        - User
+      parameters:
+        - in: path
+          name: userName
+          required: true
+          schema:
+            type: string
+          description: Unique username of the user
+      responses:
+        '200':
+          description: User deleted successfully
+        '404':
+          description: User not found
+  
+ /users:
+    post:
+      summary: Create a new user
+      operationId: createUser
+      tags:
+        - User
+      requestBody:
+        description: User data needed to create a new user
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Unique identifier of the created user
+        '409':
+          description: Conflict - User already exists
+
+
+
+
 components:
-  schemas: {}
+  schemas:
+    User:
+      type: object
+      properties:
+        userName:
+          type: string
+        password:
+          type: string
+        birthDate:
+          type: string
+          format: date
+          description: "Birth date in YYYY/MM/DD format"
+        gender:
+          $ref: '#/components/schemas/Gender'
+        weight:
+          type: integer
+        height:
+          type: integer
+        dietaryGoal:
+          $ref: '#/components/schemas/DietaryGoal'
+        language:
+          $ref: '#/components/schemas/Language'
+      required:
+        - userName
+        - password
+        - birthDate
+        - gender
+        - weight
+        - height
+        - dietaryGoal
+        - language
+
+    Gender:
+      type: string
+      enum:
+        - Male
+        - Female
+        - Non-binary
+
+    DietaryGoal:
+      type: string
+      enum:
+        - Gain weight
+        - Stay the same
+        - Lose weight
+
+    Language:
+      type: string
+      enum:
+        - English
+        - Chinese

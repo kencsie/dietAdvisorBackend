@@ -23,10 +23,19 @@ class UserService(private val database: MongoDatabase) {
     }
 
     // Create new user
-    suspend fun create(user: User): String = withContext(Dispatchers.IO) {
-        val doc = user.toDocument()
-        collection.insertOne(doc)
-        doc["_id"].toString()
+    suspend fun create(user: User): String? = withContext(Dispatchers.IO) {
+        val exists = collection.countDocuments(Document("userName", user.userName)) > 0
+        if (exists) {
+            // If the user already exists, return null or handle as needed
+            return@withContext null
+        } else {
+            // Convert the user to a BSON document
+            val doc = user.toDocument()
+            // Insert the new user document
+            collection.insertOne(doc)
+            // Return the newly created user's ID
+            return@withContext doc["_id"].toString()
+        }
     }
 
     // Read a user

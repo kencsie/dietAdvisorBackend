@@ -5,15 +5,15 @@ import org.bson.Document
 import kotlinx.serialization.json.Json
 
 enum class Gender {
-    Female, Male, `Non-binary`
+    Male, Female, `Non-binary`
 }
 
 enum class DietaryGoal {
-    `Lose weight`, `Stay the same`, `Gain weight`
+    `Gain weight`, `Stay the same`, `Lose weight`
 }
 
 enum class Language {
-    Chinese, English
+    English, Chinese
 }
 
 @Serializable

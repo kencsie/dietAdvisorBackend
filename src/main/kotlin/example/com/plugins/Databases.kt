@@ -16,12 +16,14 @@ fun Application.configureDatabases() {
     val mongoDatabase = connectToMongoDB()
     val userService = UserService(mongoDatabase)
     routing {
-        // Create car
+        // Create user
         post("/users") {
             val user = call.receive<User>()
-            val id = userService.create(user)
-            call.respond(HttpStatusCode.Created, id)
+            userService.create(user)?.let { id ->
+                call.respond(HttpStatusCode.Created, id)
+            } ?: call.respond(HttpStatusCode.Conflict)
         }
+
         // Read user
         get("/user/{userName}") {
             val userName = call.parameters["userName"] ?: throw IllegalArgumentException("No userName found")
@@ -67,7 +69,7 @@ fun Application.configureDatabases() {
 fun Application.connectToMongoDB(): MongoDatabase {
     val user = environment.config.tryGetString("db.mongo.user")
     val password = environment.config.tryGetString("db.mongo.password")
-    val host = environment.config.tryGetString("db.mongo.host") ?: "100.108.170.70"
+    val host = environment.config.tryGetString("db.mongo.host") ?: "192.168.0.163"
     val port = environment.config.tryGetString("db.mongo.port") ?: "27017"
     val maxPoolSize = environment.config.tryGetString("db.mongo.maxPoolSize")?.toInt() ?: 20
     val databaseName = environment.config.tryGetString("db.mongo.database.name") ?: "dietAdvisor"
