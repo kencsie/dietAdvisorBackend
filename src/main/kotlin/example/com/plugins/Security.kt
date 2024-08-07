@@ -48,7 +48,7 @@ fun Application.configureSecurity() {
             }
         }
     routing {
-        authenticate("myauth1") {
+        /*authenticate("myauth1") {
             get("/protected/route/basic") {
                 val principal = call.principal<UserIdPrincipal>()!!
                 call.respondText("Hello ${principal.name}")
@@ -71,6 +71,7 @@ fun Application.configureSecurity() {
                         call.respondRedirect("/hello")
                     }
                 }
+        */
     }
 }
 
