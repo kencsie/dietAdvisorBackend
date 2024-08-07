@@ -1,1 +1,1 @@
-rootProject.name = "com.kkt.dietadvisor"
+rootProject.name = "com.kkt.dietAdvisorBackend"

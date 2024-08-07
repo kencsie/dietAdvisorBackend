@@ -1,10 +1,12 @@
 
 val kotlin_version: String by project
 val logback_version: String by project
+val mongo_version: String by project
 
 plugins {
-    kotlin("jvm") version "2.0.0"
+    kotlin("jvm") version "2.0.10"
     id("io.ktor.plugin") version "2.3.12"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.10"
 }
 
 group = "example.com"
@@ -22,10 +24,27 @@ repositories {
 }
 
 dependencies {
+    implementation("io.ktor:ktor-server-content-negotiation-jvm")
     implementation("io.ktor:ktor-server-core-jvm")
+    implementation("io.ktor:ktor-serialization-gson-jvm")
+    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
+    implementation("org.mongodb:mongodb-driver-core:$mongo_version")
+    implementation("org.mongodb:mongodb-driver-sync:$mongo_version")
+    implementation("org.mongodb:bson:$mongo_version")
+    implementation("io.ktor:ktor-server-webjars-jvm")
+    implementation("org.webjars:jquery:3.2.1")
+    implementation("io.github.smiley4:ktor-swagger-ui:2.9.0")
+    implementation("io.ktor:ktor-server-swagger-jvm")
+    implementation("io.ktor:ktor-server-auth-jvm")
+    implementation("io.ktor:ktor-client-core-jvm")
+    implementation("io.ktor:ktor-client-apache-jvm")
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("io.ktor:ktor-server-config-yaml")
-    testImplementation("io.ktor:ktor-server-tests-jvm")
+    testImplementation("io.ktor:ktor-server-test-host-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+
+    //Koin Dependency Injection
+    implementation("io.insert-koin:koin-ktor:3.5.3")
+    implementation("io.insert-koin:koin-logger-slf4j:3.5.3")
 }
