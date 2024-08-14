@@ -35,3 +35,23 @@ data class User(
         fun fromDocument(document: Document): User = json.decodeFromString(document.toJson())
     }
 }
+
+@Serializable
+data class OAuthUser(
+    val userID: String,
+    val userName: String, //From Security.getPersonalInfo()
+    val birthDate: String, //Need to check format
+    val gender: Gender,
+    val weight: Int,
+    val height: Int,
+    val dietaryGoal: DietaryGoal,
+    val language: Language,
+) {
+    fun toDocument(): Document = Document.parse(Json.encodeToString(this))
+
+    companion object {
+        private val json = Json { ignoreUnknownKeys = true }
+
+        fun fromDocument(document: Document): OAuthUser = json.decodeFromString(document.toJson())
+    }
+}

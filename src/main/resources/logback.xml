@@ -9,4 +9,7 @@
     </root>
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
+     <!-- Set MongoDB driver logging to ERROR only -->
+     <!-- https://www.mongodb.com/community/forums/t/logs-are-being-spammed-to-console-how-can-i-disable/285433 -->
+    <logger name="org.mongodb.driver" level="ERROR"/>
 </configuration>

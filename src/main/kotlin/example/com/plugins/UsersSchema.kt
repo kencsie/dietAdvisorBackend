@@ -11,7 +11,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString
 import org.bson.Document
 import org.bson.types.ObjectId
-import example.com.model.User
+import example.com.model.OAuthUser
 
 
 class UserService(private val database: MongoDatabase) {
@@ -23,7 +23,7 @@ class UserService(private val database: MongoDatabase) {
     }
 
     // Create new user
-    suspend fun create(user: User): String? = withContext(Dispatchers.IO) {
+    suspend fun create(user: OAuthUser): String? = withContext(Dispatchers.IO) {
         val exists = collection.countDocuments(Document("userName", user.userName)) > 0
         if (exists) {
             // If the user already exists, return null or handle as needed
@@ -39,18 +39,24 @@ class UserService(private val database: MongoDatabase) {
     }
 
     // Read a user
-    suspend fun read(userName: String): User? = withContext(Dispatchers.IO) {
-        collection.find(Filters.eq("userName", userName)).first()?.let(User::fromDocument)
+    suspend fun read(userName: String): OAuthUser? = withContext(Dispatchers.IO) {
+        collection.find(Filters.eq("userName", userName)).first()?.let(OAuthUser::fromDocument)
     }
 
     // Update a user
-    suspend fun update(userName: String, user: User): Document? = withContext(Dispatchers.IO) {
+    suspend fun update(userName: String, user: OAuthUser): Document? = withContext(Dispatchers.IO) {
         collection.findOneAndReplace(Filters.eq("userName", userName), user.toDocument())
     }
 
     // Delete a user
     suspend fun delete(userName: String): Document? = withContext(Dispatchers.IO) {
         collection.findOneAndDelete(Filters.eq("userName", userName))
+    }
+
+    //Check user exist or not
+    suspend fun checkUserExists(userID: String): Boolean{
+        val userCount = collection.countDocuments(Filters.eq("userID", userID))
+        return userCount > 0
     }
 }
 
