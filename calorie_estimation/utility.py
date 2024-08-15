@@ -150,8 +150,5 @@ def calorie_estimation(image_bytes, detected_objects):
     depth_maps = depth_estimation(image_bytes)
     results = calculate_volume_and_mass(segmentation_details, depth_maps)
     serialized_classes = json.dumps(results)
-    # Encode data to be sent through query parameters
-    # encoded_classes = quote(serialized_classes)
-    # print(serialized_classes)
 
-    return serialized_classes
+    return results
