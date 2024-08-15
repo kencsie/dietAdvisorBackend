@@ -43,3 +43,6 @@ calorie_estimation/static/*
 *.pt
 *.pth
 *.pkl
+
+### Python ###
+**/__pycache__
