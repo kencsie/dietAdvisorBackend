@@ -102,9 +102,8 @@ fun Application.configureRouting(client:HttpClient) {
                             })
                         })
 
-                    var body: String
                     if (response.status == HttpStatusCode.OK) {
-                        body = response.body()
+                        var body: String = response.body()
                         call.respond(HttpStatusCode.OK, body)
                     }
                 } ?: call.respond(HttpStatusCode.BadRequest, "No JSON data uploaded")

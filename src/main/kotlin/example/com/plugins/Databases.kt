@@ -15,114 +15,100 @@ import io.ktor.server.auth.*
 import io.ktor.client.*
 
 fun Application.configureDatabases(client: HttpClient) {
+    suspend fun extractToken(call: ApplicationCall): String =
+        call.request.headers["Authorization"]?.split(" ")?.lastOrNull()
+            ?: throw IllegalStateException("No access token provided")
+    
+    suspend fun validateAndGetPersonalInfo(client: HttpClient, accessToken: String): ApiResponse {
+        val personalInfo: ApiResponse = getPersonalInfo(client, accessToken)
+        if (personalInfo.statusCode != HttpStatusCode.OK) {
+            throw IllegalStateException("Failed to retrieve user info")
+        }
+        return personalInfo
+    }
+
+    suspend fun checkUserCredential(call: ApplicationCall, personalInfo: ApiResponse, userService: UserService) {
+        val userName = call.parameters["userName"] ?: throw IllegalArgumentException("No userName found")
+        if (userName != personalInfo.body.name) {
+            throw IllegalStateException("Username is not the same")
+        }
+        if(userService.read(userName)?.userID != personalInfo.body.id){
+            throw IllegalStateException("UserID is not same")
+        }
+    }
+
+
     val mongoDatabase = connectToMongoDB()
     val userService = UserService(mongoDatabase)
     
     routing {
         post("/user") {
-            val accessToken = call.request.headers["Authorization"]?.split(" ")?.lastOrNull()
-            if (accessToken == null) {
-                call.respond(HttpStatusCode.BadRequest, "No access token provided")
-                return@post
-            }
-            
-            val personalInfo: ApiResponse = getPersonalInfo(client, accessToken)
-
-            if (personalInfo.statusCode != HttpStatusCode.OK) {
-                call.respond(HttpStatusCode.Unauthorized, "Failed to retrieve user info")
-                return@post
-            }
-            
-            var userID = personalInfo.body.id
-            // Check if the user ID is already in the database to avoid duplicates
-            val userExists: Boolean = userService.checkUserExists(userID)
-            if (userExists) {
-                call.respond(HttpStatusCode.Conflict, "User already exists")
-            } else {
-                // Create user in the database
-                var user = call.receive<OAuthUser>().copy(
-                    userID = userID,  // New userID
-                    userName = personalInfo.body.name  // New userName
-                )
-
-                userService.create(user)
-                call.respond(HttpStatusCode.Created, "User created successfully")
+            try {
+                val accessToken = extractToken(call)
+                val personalInfo = validateAndGetPersonalInfo(client, accessToken)
+                
+                val userID = personalInfo.body.id
+                val userExists: Boolean = userService.checkUserExists(userID)
+                if (userExists) {
+                    call.respond(HttpStatusCode.Conflict, "User already exists")
+                } else {
+                    var user = call.receive<OAuthUser>().copy(
+                        userID = userID,
+                        userName = personalInfo.body.name
+                    )
+                    userService.create(user)
+                    call.respond(HttpStatusCode.Created, "User created successfully")
+                }
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, e.message ?: "Error processing request")
             }
         }
 
         // Read user
         get("/user/{userName}") {
-            val accessToken = call.request.headers["Authorization"]?.split(" ")?.lastOrNull()
-            if (accessToken == null) {
-                call.respond(HttpStatusCode.BadRequest, "No access token provided")
-                return@get
-            }
+            try {
+                val accessToken = extractToken(call)
+                val personalInfo = validateAndGetPersonalInfo(client, accessToken)
+                checkUserCredential(call, personalInfo, userService)
 
-            val personalInfo: ApiResponse = getPersonalInfo(client, accessToken)
-            if (personalInfo.statusCode != HttpStatusCode.OK) {
-                call.respond(HttpStatusCode.Unauthorized, "Failed to retrieve user info")
-                return@get
+                val userName: String = call.parameters["userName"]!!
+                userService.read(userName)?.let { user ->
+                    call.respond(user)
+                } ?: call.respond(HttpStatusCode.NotFound, "User not found")
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, e.message ?: "Error processing request")
             }
-
-            val userName = call.parameters["userName"] ?: throw IllegalArgumentException("No userName found")
-            if (userName != personalInfo.body.name) {
-                call.respond(HttpStatusCode.Unauthorized, "Username is not the same")
-                return@get
-            }
-            
-            userService.read(userName)?.let { user ->
-                call.respond(user)
-            } ?: call.respond(HttpStatusCode.NotFound, "User not found")
         }
         // Update user
         put("/user/{userName}") {
-            val accessToken = call.request.headers["Authorization"]?.split(" ")?.lastOrNull()
-            if (accessToken == null) {
-                call.respond(HttpStatusCode.Unauthorized, "No access token provided")
-                return@put
-            }
-            
-            val personalInfo: ApiResponse = getPersonalInfo(client, accessToken)
-            if (personalInfo.statusCode != HttpStatusCode.OK) {
-                call.respond(HttpStatusCode.Unauthorized, "Failed to retrieve user info")
-                return@put
-            }
+            try {
+                val accessToken = extractToken(call)
+                val personalInfo = validateAndGetPersonalInfo(client, accessToken)
+                checkUserCredential(call, personalInfo, userService)
 
-            val userName = call.parameters["userName"] ?: throw IllegalArgumentException("No userName found")
-            if (userName != personalInfo.body.name) {
-                call.respond(HttpStatusCode.Unauthorized, "Username is not the same")
-                return@put
+                val user = call.receive<OAuthUser>()
+                val userName: String = call.parameters["userName"]!!
+                userService.update(userName, user)?.let {
+                    call.respond(HttpStatusCode.OK, "User modified successfully")
+                } ?: call.respond(HttpStatusCode.NotFound, "User not found")
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, e.message ?: "Error processing request")
             }
-            
-            val user = call.receive<OAuthUser>()
-            userService.update(userName, user)?.let {
-                call.respond(HttpStatusCode.OK, "User modified successfully")
-            } ?: call.respond(HttpStatusCode.NotFound, "User not found")
         }
         // Delete user
         delete("/user/{userName}") {
-            val accessToken = call.request.headers["Authorization"]?.split(" ")?.lastOrNull()
-            if (accessToken == null) {
-                call.respond(HttpStatusCode.Unauthorized, "No access token provided")
-                return@delete
-            }
+            try {
+                val accessToken = extractToken(call)
+                val personalInfo = validateAndGetPersonalInfo(client, accessToken)
+                checkUserCredential(call, personalInfo, userService)
 
-            val personalInfo: ApiResponse = getPersonalInfo(client, accessToken)
-            if (personalInfo.statusCode != HttpStatusCode.OK) {
-                call.respond(HttpStatusCode.Unauthorized, "Failed to retrieve user info")
-                return@delete
+                val userName: String = call.parameters["userName"]!!
+                userService.delete(userName)?.let {
+                    call.respond(HttpStatusCode.OK, "User deleted successfully")
+                } ?: call.respond(HttpStatusCode.NotFound, "User not found")
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, e.message ?: "Error processing request")
             }
-
-            val userName = call.parameters["userName"] ?: throw IllegalArgumentException("No userName found")
-            if (userName != personalInfo.body.name) {
-                call.respond(HttpStatusCode.Unauthorized, "Username is not the same")
-                return@delete
-            }
-            
-
-            userService.delete(userName)?.let {
-                call.respond(HttpStatusCode.OK, "User deleted successfully")
-            } ?: call.respond(HttpStatusCode.NotFound, "User not found")
         }
     }
 }
