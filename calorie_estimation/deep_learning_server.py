@@ -8,7 +8,7 @@ app = Flask(__name__)
 @app.route('/yolo', methods=['POST'])
 def upload_file():
     if request.method == 'POST':
-        image_data = request.data
+        image_data = request.files['image'].read()
         image_data = resize_and_save_image(image_data)
         result = yolo_object_detection(image_data)
         return jsonify(result)
@@ -23,14 +23,14 @@ def calorie():
             image_data = image_file.read()
 
         # Check for JSON data in the request form or as a separate part
-        if 'data' in request.form:
-            detected_objects = json.loads(request.form['data'])
+        if 'data' in request.files:
+            detected_objects = json.loads(request.files['data'].read())
 
             result = calorie_estimation(image_data, detected_objects)
 
             return jsonify(result)
-        
-        #return "0"
+
+        return 'Missing image or data', 400
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

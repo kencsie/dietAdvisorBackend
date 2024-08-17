@@ -3,6 +3,7 @@ package example.com
 import example.com.plugins.*
 import io.ktor.server.application.*
 import io.ktor.client.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 
@@ -15,6 +16,9 @@ fun provideHttpClient(): HttpClient {
         install(ContentNegotiation) {
             json() // Configures Kotlinx JSON serialization for the client
         }
+        install(HttpTimeout){
+            socketTimeoutMillis = 30000
+        }
     }
 }
 
@@ -24,6 +28,6 @@ fun Application.module() {
     configureHTTP()
     configureSecurity(client)
     configureDatabases(client)
-    configureRouting()
+    configureRouting(client)
     configureSessions()
 }
