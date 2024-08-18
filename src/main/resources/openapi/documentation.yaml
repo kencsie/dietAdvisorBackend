@@ -1,113 +1,192 @@
 openapi: "3.0.3"
 info:
   title: "dietAdvisorBackend API"
-  version: "0.0.1"
+  version: "0.1.0"
 servers:
   - url: "http://100.108.170.70:8080"
 paths:
- /user/{userName}:
+  /login:
     get:
-      summary: Read user information
-      description: Retrieve a user's information by userName
-      operationId: getUserByName
+      summary: "Initiate user login via OAuth"
+      operationId: "initiateLogin"
       tags:
-        - User
-      parameters:
-        - in: path
-          name: userName
-          required: true
-          schema:
-            type: string
-          description: The user's name
+        - Authentication
       responses:
-        '200':
-          description: Successfully retrieved user information
-          content:
-            application/json:
+        '302':
+          description: "Redirect to OAuth provider for authentication"
+          headers:
+            Location:
+              description: "URL to redirect to"
               schema:
-                $ref: '#/components/schemas/User'
-        '404':
-          description: User not found
-    put:
-      summary: Update an existing user
-      operationId: updateUser
-      tags:
-        - User
-      parameters:
-        - in: path
-          name: userName
-          required: true
-          schema:
-            type: string
-          description: Unique username of the user
-      requestBody:
-        description: Updated user data
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-      responses:
-        '200':
-          description: User updated successfully
-        '404':
-          description: User not found
-    delete:
-      summary: Delete a user
-      operationId: deleteUser
-      tags:
-        - User
-      parameters:
-        - in: path
-          name: userName
-          required: true
-          schema:
-            type: string
-          description: Unique username of the user
-      responses:
-        '200':
-          description: User deleted successfully
-        '404':
-          description: User not found
-  
- /users:
+                type: string
+                example: "/callback"
+
+  /user:
     post:
-      summary: Create a new user
-      operationId: createUser
+      summary: "Create a new user"
+      operationId: "createUser"
+      security:
+        - bearerAuth: []
       tags:
-        - User
+        - OAuthUser
       requestBody:
-        description: User data needed to create a new user
+        description: "User data needed to create a new user"
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/OAuthUser'
       responses:
         '201':
-          description: User created successfully
+          description: "User created successfully"
+        '409':
+          description: "Conflict - User already exists"
+        '400':
+          description: "Bad request - Error processing request"
+
+  /user/{userName}:
+    get:
+      summary: "Read user information"
+      operationId: "readUser"
+      security:
+        - bearerAuth: []
+      tags:
+        - OAuthUser
+      parameters:
+        - in: path
+          name: userName
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "User found"
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    description: Unique identifier of the created user
-        '409':
-          description: Conflict - User already exists
+                $ref: '#/components/schemas/OAuthUser'
+        '404':
+          description: "User not found"
+        '400':
+          description: "Bad request - Error processing request"
+          
+    put:
+      summary: "Update user information"
+      operationId: "updateUser"
+      security:
+        - bearerAuth: []
+      tags:
+        - OAuthUser
+      parameters:
+        - in: path
+          name: userName
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: "User data to update the existing user"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OAuthUser'
+      responses:
+        '200':
+          description: "User modified successfully"
+        '404':
+          description: "User not found"
+        '400':
+          description: "Bad request - Error processing request"
 
+    delete:
+      summary: "Delete a user"
+      operationId: "deleteUser"
+      security:
+        - bearerAuth: []
+      tags:
+        - OAuthUser
+      parameters:
+        - in: path
+          name: userName
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "User deleted successfully"
+        '404':
+          description: "User not found"
+        '400':
+          description: "Bad request - Error processing request"
 
+  /yolo:
+    post:
+      summary: "Process an image with YOLO model"
+      operationId: "processYolo"
+      tags:
+        - Image Processing
+      requestBody:
+        description: "Multipart form data containing the image file"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: "Image to be processed by YOLO"
+      responses:
+        '200':
+          description: "Image processed successfully"
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          description: "Bad request - No image uploaded"
+
+  /calorie:
+    post:
+      summary: "Estimate calorie count from an image"
+      operationId: "estimateCalories"
+      tags:
+        - Calorie Estimation
+      requestBody:
+        description: "Multipart form data containing the image file and related JSON data"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: "Image of the food item"
+                data:
+                  type: string
+                  description: "JSON formatted additional data about the food item"
+      responses:
+        '200':
+          description: "Calorie estimation provided"
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          description: "Bad request - Required data not uploaded"
 
 
 components:
   schemas:
-    User:
+    OAuthUser:
       type: object
       properties:
-        userName:
+        userID:
           type: string
-        password:
+        userName:
           type: string
         birthDate:
           type: string
@@ -124,8 +203,8 @@ components:
         language:
           $ref: '#/components/schemas/Language'
       required:
+        - userID
         - userName
-        - password
         - birthDate
         - gender
         - weight
@@ -152,3 +231,7 @@ components:
       enum:
         - English
         - Chinese
+  securitySchemes:
+    bearerAuth:
+        type: http
+        scheme: bearer
