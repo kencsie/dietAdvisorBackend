@@ -6,6 +6,7 @@ import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.plugins.cors.routing.*
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
@@ -23,6 +24,10 @@ fun provideHttpClient(): HttpClient {
 }
 
 fun Application.module() {
+    install(CORS) {
+        //allowHost("diet.kencs.net")
+    }
+    
     val client = provideHttpClient()
     configureSerialization()
     configureHTTP()
