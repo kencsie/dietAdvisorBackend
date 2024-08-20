@@ -65,7 +65,7 @@ suspend fun getPersonalInfo(
             append(HttpHeaders.Authorization, "Bearer $userToken")
         }
     }
-    var body: GoogleUserInfo = GoogleUserInfo("","","","","")
+    var body: GoogleUserInfo = GoogleUserInfo("","","", "", "")
     if(response.status == HttpStatusCode.OK)
     {
         body = response.body()
@@ -89,7 +89,7 @@ data class GoogleUserInfo(
     val id: String,
     val name: String,
     val given_name: String,
-    val family_name: String,
+    val family_name: String? = null,
     val picture: String
 )
 
