@@ -150,5 +150,6 @@ def calorie_estimation(image_bytes, detected_objects):
     depth_maps = depth_estimation(image_bytes)
     results = calculate_volume_and_mass(segmentation_details, depth_maps)
     serialized_classes = json.dumps(results)
+    torch.cuda.empty_cache()
 
     return results

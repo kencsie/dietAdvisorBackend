@@ -7,6 +7,8 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.plugins.cors.routing.*
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpHeaders
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
@@ -24,8 +26,17 @@ fun provideHttpClient(): HttpClient {
 }
 
 fun Application.module() {
+    //Need to configure CORS
+    //https://milosgarunovic.com/posts/ktor-cors/
     install(CORS) {
-        //allowHost("diet.kencs.net")
+        allowHost("diet.kencs.net")
+
+        allowMethod(HttpMethod.Options)
+        allowMethod(HttpMethod.Put)
+        allowMethod(HttpMethod.Delete)
+        allowHeader(HttpHeaders.ContentType)
+        allowHeader(HttpHeaders.Authorization)
+        allowNonSimpleContentTypes = true
     }
     
     val client = provideHttpClient()
