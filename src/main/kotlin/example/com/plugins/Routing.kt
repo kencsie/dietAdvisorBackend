@@ -15,6 +15,9 @@ import io.ktor.client.request.forms.*
 import io.ktor.client.*
 import io.ktor.client.statement.*
 import io.ktor.client.call.*
+import example.com.model.ChatRequest
+import example.com.model.Message
+
 
 fun Application.configureRouting(client:HttpClient) {
     routing {
@@ -108,6 +111,30 @@ fun Application.configureRouting(client:HttpClient) {
                     }
                 } ?: call.respond(HttpStatusCode.BadRequest, "No JSON data uploaded")
             } ?: call.respond(HttpStatusCode.BadRequest, "No image uploaded")
+        }
+
+        post("/recommendation"){
+            val formParameters = call.receiveParameters()
+            val model = formParameters["model"].toString()
+            val prompt = formParameters["prompt"].toString()
+            val response: HttpResponse = client.post("https://llm.kencs.net/api/chat") {
+                contentType(ContentType.Application.Json)
+                setBody(ChatRequest(
+                    model=model,
+                    messages = listOf(
+                        Message(
+                            role = "user",
+                            content = prompt
+                        )
+                    ),
+                    stream = false
+                ))
+            }
+
+            if (response.status == HttpStatusCode.OK) {
+                var body: String = response.body()
+                call.respond(HttpStatusCode.OK, body)
+            }
         }
     }
 }

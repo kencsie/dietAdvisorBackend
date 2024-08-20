@@ -1,7 +1,7 @@
 openapi: "3.0.3"
 info:
   title: "dietAdvisorBackend API"
-  version: "0.1.0"
+  version: "0.2.0"
 servers:
   - url: "https://diet.kencs.net"
 paths:
@@ -178,6 +178,47 @@ paths:
         '400':
           description: "Bad request - Required data not uploaded"
 
+  /recommendation:
+    post:
+      summary: Generates a recommendation using a provided model and prompt.
+      description: This endpoint accepts a model identifier and a prompt, then generates a recommendation based on the input.
+      tags:
+        - Recommendation
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                model:
+                  type: string
+                  description: The identifier of the model to use.
+                  enum: ['gemma2:27b', 'llava:34b-v1.6', 'mistral-nemo:latest', 'llama3.1:latest']
+                prompt:
+                  type: string
+                  description: The prompt based on which the recommendation will be generated.
+              required:
+                - model
+                - prompt
+      responses:
+        200:
+          description: Successfully generated a recommendation.
+          content:
+            application/json:
+              schema:
+                type: string
+                description: The response from the recommendation engine.
+        default:
+          description: An error occurred.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message explaining what went wrong.
 
 components:
   schemas:
@@ -231,6 +272,38 @@ components:
       enum:
         - English
         - Chinese
+  
+    Message:
+      type: object
+      properties:
+        role:
+          type: string
+          description: Role of the sender in the conversation, typically 'user' or 'system'.
+        content:
+          type: string
+          description: Content of the message sent.
+      required:
+        - role
+        - content
+
+    ChatRequest:
+      type: object
+      properties:
+        model:
+          type: string
+          description: The identifier of the model to use.
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        stream:
+          type: boolean
+          description: Indicates whether the response should be streamed.
+      required:
+        - model
+        - messages
+        - stream
+  
   securitySchemes:
     bearerAuth:
         type: http
