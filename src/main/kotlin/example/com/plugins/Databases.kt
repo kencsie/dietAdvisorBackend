@@ -41,9 +41,13 @@ fun Application.configureDatabases(client: HttpClient) {
                 if (userExists) {
                     call.respond(HttpStatusCode.Conflict, "User already exists")
                 } else {
-                    var user = call.receive<OAuthUser>().copy(
+                    val receivedUser = call.receive<OAuthUser>()
+                    val updatedPersonalInfo = receivedUser.personalInfo.copy(
                         userID = userID,
-                        userName = personalInfo.body.name
+                        userName = personalInfo.body.name // Assuming personalInfo.body.name is the new username you want to set.
+                    )
+                    var user = receivedUser.copy(
+                        personalInfo = updatedPersonalInfo
                     )
                     userService.create(user)
                     call.respond(HttpStatusCode.Created, "User created successfully")

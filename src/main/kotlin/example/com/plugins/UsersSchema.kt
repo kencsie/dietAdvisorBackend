@@ -24,7 +24,7 @@ class UserService(private val database: MongoDatabase) {
 
     // Create new user
     suspend fun create(user: OAuthUser): String? = withContext(Dispatchers.IO) {
-        val exists = collection.countDocuments(Document("userName", user.userName)) > 0
+        val exists = collection.countDocuments(Document("personalInfo.userName", user.personalInfo.userName)) > 0
         if (exists) {
             // If the user already exists, return null or handle as needed
             return@withContext null
@@ -40,22 +40,22 @@ class UserService(private val database: MongoDatabase) {
 
     // Read a user
     suspend fun read(userID: String): OAuthUser? = withContext(Dispatchers.IO) {
-        collection.find(Filters.eq("userID", userID)).first()?.let(OAuthUser::fromDocument)
+        collection.find(Filters.eq("personalInfo.userID", userID)).first()?.let(OAuthUser::fromDocument)
     }
 
     // Update a user
     suspend fun update(userID: String, user: OAuthUser): Document? = withContext(Dispatchers.IO) {
-        collection.findOneAndReplace(Filters.eq("userID", userID), user.toDocument())
+        collection.findOneAndReplace(Filters.eq("personalInfo.userID", userID), user.toDocument())
     }
 
     // Delete a user
     suspend fun delete(userID: String): Document? = withContext(Dispatchers.IO) {
-        collection.findOneAndDelete(Filters.eq("userID", userID))
+        collection.findOneAndDelete(Filters.eq("personalInfo.userID", userID))
     }
 
     //Check user exist or not
     suspend fun checkUserExists(userID: String): Boolean{
-        val userCount = collection.countDocuments(Filters.eq("userID", userID))
+        val userCount = collection.countDocuments(Filters.eq("personalInfo.userID", userID))
         return userCount > 0
     }
 }

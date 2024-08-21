@@ -206,6 +206,19 @@ components:
     OAuthUser:
       type: object
       properties:
+        personalInfo:
+          $ref: '#/components/schemas/PersonalInfo'
+        bodyMeasurements:
+          $ref: '#/components/schemas/BodyMeasurements'
+        dietaryInfo:
+          $ref: '#/components/schemas/DietaryInfo'
+        lastMeal:
+          $ref: '#/components/schemas/NutritionalInfo'
+          nullable: true
+    
+    PersonalInfo:
+      type: object
+      properties:
         userID:
           type: string
         userName:
@@ -213,47 +226,69 @@ components:
         birthDate:
           type: string
           format: date
-          description: "Birth date in YYYY/MM/DD format"
         gender:
           $ref: '#/components/schemas/Gender'
-        weight:
-          type: integer
-        height:
-          type: integer
-        dietaryGoal:
-          $ref: '#/components/schemas/DietaryGoal'
         language:
           $ref: '#/components/schemas/Language'
-      required:
-        - userID
-        - userName
-        - birthDate
-        - gender
-        - weight
-        - height
-        - dietaryGoal
-        - language
-
+    
+    BodyMeasurements:
+      type: object
+      properties:
+        weight:
+          type: number
+          format: double
+        height:
+          type: number
+          format: double
+        physicalActivity:
+          type: number
+          format: double
+    
+    DietaryInfo:
+      type: object
+      properties:
+        dietaryGoal:
+          $ref: '#/components/schemas/DietaryGoal'
+        dietaryGoalAmount:
+          type: number
+          format: double
+        TMR:
+          type: number
+          format: double
+        TDEE:
+          type: number
+          format: double
+    
+    NutritionalInfo:
+      type: object
+      properties:
+        carb:
+          type: integer
+        protein:
+          type: integer
+        fat:
+          type: integer
+    
     Gender:
       type: string
       enum:
         - Male
         - Female
         - Non-binary
-
+    
     DietaryGoal:
       type: string
       enum:
         - Gain weight
         - Stay the same
         - Lose weight
-
+    
     Language:
       type: string
       enum:
         - English
         - Chinese
-  
+
     Message:
       type: object
       properties:
