@@ -44,7 +44,6 @@ paths:
         '400':
           description: "Bad request - Error processing request"
 
-  /user/{userName}:
     get:
       summary: "Read user information"
       operationId: "readUser"
@@ -52,12 +51,6 @@ paths:
         - bearerAuth: []
       tags:
         - OAuthUser
-      parameters:
-        - in: path
-          name: userName
-          required: true
-          schema:
-            type: string
       responses:
         '200':
           description: "User found"
@@ -77,12 +70,6 @@ paths:
         - bearerAuth: []
       tags:
         - OAuthUser
-      parameters:
-        - in: path
-          name: userName
-          required: true
-          schema:
-            type: string
       requestBody:
         description: "User data to update the existing user"
         required: true
@@ -105,12 +92,6 @@ paths:
         - bearerAuth: []
       tags:
         - OAuthUser
-      parameters:
-        - in: path
-          name: userName
-          required: true
-          schema:
-            type: string
       responses:
         '200':
           description: "User deleted successfully"

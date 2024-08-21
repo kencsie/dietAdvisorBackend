@@ -39,18 +39,18 @@ class UserService(private val database: MongoDatabase) {
     }
 
     // Read a user
-    suspend fun read(userName: String): OAuthUser? = withContext(Dispatchers.IO) {
-        collection.find(Filters.eq("userName", userName)).first()?.let(OAuthUser::fromDocument)
+    suspend fun read(userID: String): OAuthUser? = withContext(Dispatchers.IO) {
+        collection.find(Filters.eq("userID", userID)).first()?.let(OAuthUser::fromDocument)
     }
 
     // Update a user
-    suspend fun update(userName: String, user: OAuthUser): Document? = withContext(Dispatchers.IO) {
-        collection.findOneAndReplace(Filters.eq("userName", userName), user.toDocument())
+    suspend fun update(userID: String, user: OAuthUser): Document? = withContext(Dispatchers.IO) {
+        collection.findOneAndReplace(Filters.eq("userID", userID), user.toDocument())
     }
 
     // Delete a user
-    suspend fun delete(userName: String): Document? = withContext(Dispatchers.IO) {
-        collection.findOneAndDelete(Filters.eq("userName", userName))
+    suspend fun delete(userID: String): Document? = withContext(Dispatchers.IO) {
+        collection.findOneAndDelete(Filters.eq("userID", userID))
     }
 
     //Check user exist or not

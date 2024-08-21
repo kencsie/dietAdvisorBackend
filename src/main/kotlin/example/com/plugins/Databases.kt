@@ -27,17 +27,6 @@ fun Application.configureDatabases(client: HttpClient) {
         return personalInfo
     }
 
-    suspend fun checkUserCredential(call: ApplicationCall, personalInfo: ApiResponse, userService: UserService) {
-        val userName = call.parameters["userName"] ?: throw IllegalArgumentException("No userName found")
-        if (userName != personalInfo.body.name) {
-            throw IllegalStateException("Username is not the same")
-        }
-        if(userService.read(userName)?.userID != personalInfo.body.id){
-            throw IllegalStateException("UserID is not same")
-        }
-    }
-
-
     val mongoDatabase = connectToMongoDB()
     val userService = UserService(mongoDatabase)
     
@@ -65,30 +54,29 @@ fun Application.configureDatabases(client: HttpClient) {
         }
 
         // Read user
-        get("/user/{userName}") {
+        get("/user") {
             try {
                 val accessToken = extractToken(call)
                 val personalInfo = validateAndGetPersonalInfo(client, accessToken)
-                checkUserCredential(call, personalInfo, userService)
-
-                val userName: String = call.parameters["userName"]!!
-                userService.read(userName)?.let { user ->
-                    call.respond(user)
-                } ?: call.respond(HttpStatusCode.NotFound, "User not found")
+                
+                if(userService.checkUserExists(personalInfo.body.id)){
+                    var user = userService.read(personalInfo.body.id) ?: call.respond(HttpStatusCode.NotFound, "User not found")
+                    call.respond(user) 
+                }else{
+                    call.respond(HttpStatusCode.NotFound, "User not found")
+                }
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.BadRequest, e.message ?: "Error processing request")
             }
         }
         // Update user
-        put("/user/{userName}") {
+        put("/user") {
             try {
                 val accessToken = extractToken(call)
                 val personalInfo = validateAndGetPersonalInfo(client, accessToken)
-                checkUserCredential(call, personalInfo, userService)
-
                 val user = call.receive<OAuthUser>()
-                val userName: String = call.parameters["userName"]!!
-                userService.update(userName, user)?.let {
+
+                userService.update(personalInfo.body.id, user)?.let {
                     call.respond(HttpStatusCode.OK, "User modified successfully")
                 } ?: call.respond(HttpStatusCode.NotFound, "User not found")
             } catch (e: Exception) {
@@ -96,14 +84,12 @@ fun Application.configureDatabases(client: HttpClient) {
             }
         }
         // Delete user
-        delete("/user/{userName}") {
+        delete("/user") {
             try {
                 val accessToken = extractToken(call)
                 val personalInfo = validateAndGetPersonalInfo(client, accessToken)
-                checkUserCredential(call, personalInfo, userService)
 
-                val userName: String = call.parameters["userName"]!!
-                userService.delete(userName)?.let {
+                userService.delete(personalInfo.body.id)?.let {
                     call.respond(HttpStatusCode.OK, "User deleted successfully")
                 } ?: call.respond(HttpStatusCode.NotFound, "User not found")
             } catch (e: Exception) {
