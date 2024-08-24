@@ -212,6 +212,10 @@ components:
           $ref: '#/components/schemas/BodyMeasurements'
         dietaryInfo:
           $ref: '#/components/schemas/DietaryInfo'
+        intakeHistory:
+          type: array
+          items:
+            $ref: '#/components/schemas/IntakeEntry'
         lastMeal:
           $ref: '#/components/schemas/NutritionalInfo'
           nullable: true
@@ -283,6 +287,14 @@ components:
         - Stay the same
         - Lose weight
     
+    IntakeEntry:
+      type: object
+      properties:
+        date:
+          type: string
+        nutritionalInfo:
+          $ref: '#/components/schemas/NutritionalInfo'
+
     Language:
       type: string
       enum:

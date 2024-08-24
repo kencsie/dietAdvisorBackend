@@ -24,6 +24,12 @@ data class NutritionalInfo(
 )
 
 @Serializable
+data class IntakeEntry(
+    val date: String,
+    val nutritionalInfo: NutritionalInfo
+)
+
+@Serializable
 data class PersonalInfo(
     val userID: String,
     val userName: String, // From Security.getPersonalInfo()
@@ -52,6 +58,7 @@ data class OAuthUser(
     val personalInfo: PersonalInfo,
     val bodyMeasurements: BodyMeasurements,
     val dietaryInfo: DietaryInfo,
+    val intakeHistory: List<IntakeEntry> = listOf(),
     val lastMeal: NutritionalInfo? = null
 ) {
     fun toDocument(): Document = Document.parse(Json.encodeToString(this))
