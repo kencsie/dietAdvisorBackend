@@ -17,7 +17,8 @@ import io.ktor.client.statement.*
 import io.ktor.client.call.*
 import example.com.model.ChatRequest
 import example.com.model.Message
-
+import example.com.model.getPrompt
+import example.com.model.OAuthUser
 
 fun Application.configureRouting(client:HttpClient) {
     routing {
@@ -114,9 +115,11 @@ fun Application.configureRouting(client:HttpClient) {
         }
 
         post("/recommendation"){
-            val formParameters = call.receiveParameters()
-            val model = formParameters["model"].toString()
-            val prompt = formParameters["prompt"].toString()
+            //val model = formParameters["model"].toString()
+            val user : OAuthUser = call.receive<OAuthUser>()
+            val model: String = "gemma2:27b"
+            var prompt = getPrompt(user=user)
+            //println(prompt)
             val response: HttpResponse = client.post("https://llm.kencs.net/api/chat") {
                 contentType(ContentType.Application.Json)
                 setBody(ChatRequest(

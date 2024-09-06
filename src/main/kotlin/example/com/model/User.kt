@@ -18,9 +18,10 @@ enum class Language {
 
 @Serializable
 data class NutritionalInfo(
-    val carb: Int,
-    val protein: Int,
-    val fat: Int
+    val carb: Double,
+    val protein: Double,
+    val fat: Double,
+    val calorie: Double
 )
 
 @Serializable

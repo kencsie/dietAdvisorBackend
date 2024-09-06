@@ -166,22 +166,12 @@ paths:
       tags:
         - Recommendation
       requestBody:
+        description: "User data needed to create a new user"
         required: true
         content:
-          application/x-www-form-urlencoded:
+          application/json:
             schema:
-              type: object
-              properties:
-                model:
-                  type: string
-                  description: The identifier of the model to use.
-                  enum: ['gemma2:27b', 'llava:34b-v1.6', 'mistral-nemo:latest', 'llama3.1:latest']
-                prompt:
-                  type: string
-                  description: The prompt based on which the recommendation will be generated.
-              required:
-                - model
-                - prompt
+              $ref: '#/components/schemas/OAuthUser'
       responses:
         200:
           description: Successfully generated a recommendation.
@@ -267,11 +257,13 @@ components:
       type: object
       properties:
         carb:
-          type: integer
+          type: number
         protein:
-          type: integer
+          type: number
         fat:
-          type: integer
+          type: number
+        calorie:
+          type: number
     
     Gender:
       type: string
