@@ -16,6 +16,7 @@ import io.ktor.client.*
 import io.ktor.client.statement.*
 import io.ktor.client.call.*
 import example.com.model.ChatRequest
+import example.com.model.ChatResponse
 import example.com.model.Message
 import example.com.model.getPrompt
 import example.com.model.OAuthUser
@@ -115,13 +116,15 @@ fun Application.configureRouting(client:HttpClient) {
         }
 
         post("/recommendation"){
-            //val model = formParameters["model"].toString()
             val user : OAuthUser = call.receive<OAuthUser>()
-            val model: String = "gemma2:27b"
-            var prompt = getPrompt(user=user)
-            //println(prompt)
-            val response: HttpResponse = client.post("https://llm.kencs.net/api/chat") {
+            var prompt = getPrompt(user)
+            val token = System.getenv("OPENROUTER_BEARER_TOKEN")
+        
+            //val model: String = "openai/gpt-4o-2024-08-06"
+            val model: String = "openai/gpt-4o-mini"
+            val response: HttpResponse = client.post("https://openrouter.ai/api/v1/chat/completions") {
                 contentType(ContentType.Application.Json)
+                header("Authorization", token)
                 setBody(ChatRequest(
                     model=model,
                     messages = listOf(
@@ -130,13 +133,21 @@ fun Application.configureRouting(client:HttpClient) {
                             content = prompt
                         )
                     ),
-                    stream = false
+                    top_p = 1.0,
+                    temperature = 0.7,
+                    frequency_penalty = 0.0,
+                    presence_penalty = 0.0,
+                    repetition_penalty = 1.0,
+                    top_k = 0.0,
                 ))
             }
 
             if (response.status == HttpStatusCode.OK) {
-                var body: String = response.body()
-                call.respond(HttpStatusCode.OK, body)
+                val responseBody: ChatResponse = response.body()
+                val responseContent: String = responseBody.choices[0].message.content
+                call.respond(HttpStatusCode.OK, responseContent)
+            } else {
+                call.respond(HttpStatusCode.BadRequest, "Failed to retrieve data from external service")
             }
         }
     }
