@@ -51,7 +51,7 @@ fun Application.configureRouting(client:HttpClient) {
 
             imageBytes?.let { bytes ->
                 val response:HttpResponse = client.submitFormWithBinaryData(
-                    url = "http://100.108.170.70:8081/yolo",
+                    url = "http://${System.getenv("FLASK_HOST")}:${System.getenv("FLASK_PORT")}/yolo",
                     formData = formData {
                         append("description", "Ktor logo")
                         append("image", bytes, Headers.build {
@@ -95,7 +95,7 @@ fun Application.configureRouting(client:HttpClient) {
                 jsonContent?.let { json ->
                     // Example of using both image and JSON data
                     val response: HttpResponse = client.submitFormWithBinaryData(
-                        url = "http://100.108.170.70:8081/calorie",
+                        url = "http://${System.getenv("FLASK_HOST")}:${System.getenv("FLASK_PORT")}/calorie",
                         formData = formData {
                             append("image", bytes, Headers.build {
                                 append(HttpHeaders.ContentType, "image/png")

@@ -47,4 +47,4 @@ calorie_estimation/static/*
 ### Python ###
 **/__pycache__
 
-export.txt
+run.sh

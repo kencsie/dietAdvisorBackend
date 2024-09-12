@@ -18,7 +18,7 @@ import io.ktor.client.call.*
 fun Application.configureSecurity(hostClient:HttpClient) {
     install(Authentication) {
         oauth("auth-oauth-google") {
-            urlProvider = { "http://diet.kencs.net/callback" }
+            urlProvider = { "http://${System.getenv("URL_PROVIDER")}/callback" }
             providerLookup = {
                 OAuthServerSettings.OAuth2ServerSettings(
                     name = "google",

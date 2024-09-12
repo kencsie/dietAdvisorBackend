@@ -123,8 +123,8 @@ fun Application.configureDatabases(client: HttpClient) {
 fun Application.connectToMongoDB(): MongoDatabase {
     val user = environment.config.tryGetString("db.mongo.user")
     val password = environment.config.tryGetString("db.mongo.password")
-    val host = environment.config.tryGetString("db.mongo.host") ?: "192.168.0.163"
-    val port = environment.config.tryGetString("db.mongo.port") ?: "27017"
+    val host = environment.config.tryGetString("db.mongo.host") ?: System.getenv("MONGO_HOST")
+    val port = environment.config.tryGetString("db.mongo.port") ?: System.getenv("MONGO_PORT")
     val maxPoolSize = environment.config.tryGetString("db.mongo.maxPoolSize")?.toInt() ?: 20
     val databaseName = environment.config.tryGetString("db.mongo.database.name") ?: "dietAdvisor"
 

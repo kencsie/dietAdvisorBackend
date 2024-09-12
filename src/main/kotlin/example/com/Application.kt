@@ -29,7 +29,7 @@ fun Application.module() {
     //Need to configure CORS
     //https://milosgarunovic.com/posts/ktor-cors/
     install(CORS) {
-        allowHost("diet.kencs.net")
+        allowHost("${System.getenv("URL_PROVIDER")}")
 
         allowMethod(HttpMethod.Options)
         allowMethod(HttpMethod.Put)
