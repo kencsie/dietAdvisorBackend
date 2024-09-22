@@ -16,6 +16,7 @@ import io.ktor.client.*
 import io.ktor.client.statement.*
 import io.ktor.client.call.*
 import example.com.model.ChatRequest
+import example.com.model.Choice
 import example.com.model.ChatResponse
 import example.com.model.Message
 import example.com.model.getPrompt
@@ -144,7 +145,7 @@ fun Application.configureRouting(client:HttpClient) {
 
             if (response.status == HttpStatusCode.OK) {
                 val responseBody: ChatResponse = response.body()
-                val responseContent: String = responseBody.choices[0].message.content
+                val responseContent: Choice = responseBody.choices[0]
                 call.respond(HttpStatusCode.OK, responseContent)
             } else {
                 call.respond(HttpStatusCode.BadRequest, "Failed to retrieve data from external service")
