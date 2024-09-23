@@ -25,12 +25,12 @@ FINAL_HEIGHT = 640
 FINAL_WIDTH = 640
 DATASET = 'nyu' # Lets not pick a fight with the model's dataloader
 
-def process_images(model, image_bytes):
+def process_images(model, image_bytes, device):
     try:
         image_stream = io.BytesIO(image_bytes)
         color_image = Image.open(image_stream).convert('RGB')
         original_width, original_height = color_image.size
-        image_tensor = transforms.ToTensor()(color_image).unsqueeze(0).to('cuda' if torch.cuda.is_available() else 'cpu')
+        image_tensor = transforms.ToTensor()(color_image).unsqueeze(0).to(device)
 
         pred = model(image_tensor, dataset=DATASET)
         if isinstance(pred, dict):
@@ -52,4 +52,4 @@ def depth_estimation(image_bytes):
     config.pretrained_resource = pretrained_resource
     model = build_model(config).to('cuda' if torch.cuda.is_available() else 'cpu')
     model.eval()
-    return process_images(model, image_bytes)
+    return process_images(model, image_bytes, 'cuda' if torch.cuda.is_available() else 'cpu')

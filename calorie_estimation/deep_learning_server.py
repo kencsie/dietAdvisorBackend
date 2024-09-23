@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from utility import yolo_object_detection, calorie_estimation, resize_and_save_image
+from async_utility import calorie_estimation, resize_and_save_image, yolo_detection
 import base64
 import json
 
@@ -10,7 +10,7 @@ def upload_file():
     if request.method == 'POST':
         image_data = request.files['image'].read()
         image_data = resize_and_save_image(image_data)
-        result = yolo_object_detection(image_data)
+        result = yolo_detection(image_data)
         return jsonify(result)
 
 @app.route('/calorie', methods=['POST'])
@@ -33,4 +33,4 @@ def calorie():
         return 'Missing image or data', 400
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=8081)
+    app.run(debug=False, host='0.0.0.0', port=8081)
