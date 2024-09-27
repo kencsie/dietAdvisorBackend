@@ -25,6 +25,7 @@ data class ChatRequest(
 
 @Serializable
 data class ChatResponse(
+    var provider:String,
     val id: String,
     val model: String,
     val `object`: String,

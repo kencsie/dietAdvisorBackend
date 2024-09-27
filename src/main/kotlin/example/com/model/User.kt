@@ -9,7 +9,7 @@ enum class Gender {
 }
 
 enum class DietaryGoal {
-    `Gain weight`, `Stay the same`, `Lose weight`
+    `Gain weight`, `Maintain weight`, `Lose weight`
 }
 
 enum class Language {
