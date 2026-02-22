@@ -1,5 +1,13 @@
 # DietAdvisor Backend Server
 
+## Demo
+
+[![YouTube Demo](https://img.youtube.com/vi/qvs0chYFkQ8/0.jpg)](https://youtu.be/qvs0chYFkQ8)
+
+> Click the thumbnail to watch the demo — food recognition, calorie estimation, and personalized recommendations in action.
+
+---
+
 A backend server for the DietAdvisor app, providing AI-powered food detection, calorie estimation, and personalized dietary recommendations. Built with **Ktor (Kotlin)** for the API server and **Flask (Python)** for the deep learning inference pipeline.
 
 ## Architecture
@@ -298,11 +306,16 @@ Input Image
 Output: mass per food item (used to look up macros from nutrient_data.json)
 ```
 
-### Supported Food Items (22 items)
+### Supported Food Items
+
+Supports 22 food categories (see [`nutrient_data.json`](calorie_estimation/data/nutrient_data.json)). YOLO also detects **Coin** as a calibration reference for real-world size estimation.
+
+<details>
+<summary>View all 22 food items</summary>
 
 Kabayaki sea bream fillet, Spam, Apple, Cabbage, Creamy tofu, Creamy tofu (without sauce), Cucumber, Egg tofu, Firm tofu, Fish cake, Fried chicken cutlet, Fried potato, Grilled pork, Guava, Mustard greens, Pig blood curd, Pig liver, Pineapple, Pumpkin, Red grilled pork, Soy egg, Sweet potato leaves, Rice
 
-> YOLO also detects **Coin** as a calibration reference for real-world size estimation, but it is not a food item.
+</details>
 
 ## Environment Variables
 
