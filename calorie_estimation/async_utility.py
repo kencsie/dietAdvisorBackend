@@ -15,13 +15,13 @@ warnings.filterwarnings("ignore")
 import sys
 import os
 
-sys.path.append(os.path.abspath('./data/models/Depth-Anything/metric_depth'))
+sys.path.append(os.path.abspath('./calorie_estimation/data/models/Depth-Anything/metric_depth'))
 from depth_to_pointcloud import depth_estimation, process_images  # Ensure this is correctly imported
 
 from segment_anything import sam_model_registry, SamPredictor
 
 # Constants
-CHECKPOINT_PATH = "./data/models/sam_vit_h_4b8939.pth"
+CHECKPOINT_PATH = "./calorie_estimation/data/models/sam_vit_h_4b8939.pth"
 MODEL_TYPE = "vit_h"
 REAL_COIN_AREA = 13 ** 2 * np.pi
 
@@ -62,7 +62,7 @@ class ModelManager:
         model_name = 'zoedepth'
         DATASET = 'nyu'  # Replace with your dataset name
         config = get_config(model_name, 'eval', DATASET)
-        pretrained_resource = 'local::data/models/Depth-Anything/metric_depth/checkpoints/nutrition5k_03-May_12-04-b56f6cfdfe15_latest.pt'
+        pretrained_resource = 'local::calorie_estimation/data/models/Depth-Anything/metric_depth/checkpoints/nutrition5k_03-May_12-04-b56f6cfdfe15_latest.pt'
         config.pretrained_resource = pretrained_resource
         depth_model = build_model(config).to(device)
         depth_model.eval()
@@ -70,11 +70,11 @@ class ModelManager:
 
     def load_regression_model(self):
         # Load regression model (assumed to be CPU-based)
-        regression_model = joblib.load('./data/models/regression_model.pkl')
+        regression_model = joblib.load('./calorie_estimation/data/models/regression_model.pkl')
         return regression_model
 
     def load_yolo_model(self, device):
-        yolo_model = torch.hub.load('ultralytics/yolov5', 'custom', path='./data/models/yolo.pt', device=device)
+        yolo_model = torch.hub.load('ultralytics/yolov5', 'custom', path='./calorie_estimation/data/models/yolo.pt', device=device)
         return yolo_model
 
     def get_device(self):

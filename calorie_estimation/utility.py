@@ -30,7 +30,7 @@ def resize_and_save_image(image_bytes):
     return modified_image_bytes
 
 def yolo_object_detection(image_bytes):
-    yolo_model = torch.hub.load('ultralytics/yolov5', 'custom', path='./data/models/yolo.pt')
+    yolo_model = torch.hub.load('ultralytics/yolov5', 'custom', path='./calorie_estimation/data/models/yolo.pt')
     yolo_model.eval()
 
     image = Image.open(io.BytesIO(image_bytes))
